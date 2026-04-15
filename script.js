@@ -281,8 +281,9 @@ let nombreEnfants = 0;
 let montantDons = 0;
 let fraisSante = 0;
 let travailleurHandicape = true;
-let nbreParts = 0;
+let nombreDeParts = 0;
 let impot = 0;
+
 
 // CAS INVALIDES
 
@@ -306,46 +307,85 @@ else {
     // célibataire ou divorcé
     if (situationFamiliale === 1 || situationFamiliale === 3){
     
+        nombreDeParts = 1;
         
-        if (nombreEnfants === 0){
-            nbreParts = 1;
+        if (nombreEnfants >= 1){
+            nombreDeParts += 1;
         }
-        else if (nombreEnfants === 1 || nombreEnfants === 2){
-            nbreParts += 1;
-        }
-        else if (nombreEnfants >= 3){
-            nbreParts += 0.5;
+        if (nombreEnfants >= 2 ){
+            nombreDeParts += (nombreEnfants - 1) * 0.5;
         }
     }
     // marié ou pacsé
     else if (situationFamiliale === 2 || situationFamiliale === 5){
-
-        if (nombreEnfants === 0){
-            nbreParts = 2;
+        nombreDeParts = 2;
+        if (nombreEnfants <= 2){
+            nombreDeParts += nombreEnfants * 0.5;
         }
-        else if (nombreEnfants === 1 || nombreEnfants === 2){
-            nbreParts += 0.5;
+        else {
+            nombreDeParts += 1 +(nombreEnfants - 2) *1;
         }
-        else if (nombreEnfants >= 3){
-            nbreParts += 1;
-        }
+        
+      
     }
     // veuf
     else if (situationFamiliale === 4){
-        if (nombreEnfants ===0){
-            nbreParts = 1.5;
-        }
-            else if (nombreEnfants > 0){
-            nbreParts = 2;
-              if (nombreEnfants === 1 || nombreEnfants === 2){
-            nbreParts += 1;
+        nombreDeParts = 1.5;
+            if (nombreEnfants >= 1){
+                nombreDeParts = 2;
             }
-            else if (nombreEnfants >= 3){
-            nbreParts += 0.5;
+                if (nombreEnfants >= 1){
+            nombreDeParts += 1;
             }
-        }
+            if (nombreEnfants >= 2){
+            nombreDeParts += (nombreEnfants -1) * 0.5;
+            }
     }
-    // **Parts supplémentaires pour les enfants :**
-//   if imbriques dans les comparaisons du dessus, du genre nbreParts += 0.5
+// **ÉTAPE 2 : Calcul du revenu imposable**
+// frais de santé
+let deductionSante = 0;
+let revenuImposable = revenuAnnuel - deductionSante;
 
+    if (fraisSante > 3000){
+        deductionSante = fraisSante - 3000;
+    }
+    if (travailleurHandicape){
+        deductionSante += 5000;
+    }
+// **ÉTAPE 3 : Calcul du quotient familial**
+
+// Quotient familial = `revenuImposable / nombreDeParts`
+
+// C'est sur ce montant que s'applique le barème progressif.
+let quotientFamilial = revenuImposable / nombreDeParts;
+// **ÉTAPE 4 : Calcul de l'impôt par tranches progressives**
+if (quotientFamilial > 100000){
+        // impot += (tranche) * taux;        
+        impot += (quotientFamilial - 100000)*0.4;
+    }
+    if (quotientFamilial > 50000){
+        impot += (quotientFamilial - 50000) * 0.3;
+    }
+    if ( quotientFamilial > 25000){
+        impot += (quotientFamilial - 25000) * 0.2;
+    }
+    if (quotientFamilial > 10000){
+        impot += (quotientFamilial - 10000) * 0.1;
+    }
+// **ÉTAPE 5 : Calcul de l'impôt brut total**
+let impotBrut = impot * nombreDeParts;
+// **ÉTAPE 6 : Réduction pour dons aux associations**
+let deductionDons = 0;
+    if (montantDons > 0){
+// Don if montant dans le film La folie des grandeurs: pouet pouet! C'est bien trop difficile cet exercice! Aahhhhouuu!
+        let reduction = montantDons * 0.66;
+        let plafond = impotBrut * 0.20;
+    if ( reduction > plafond){
+        deductionDons = plafond;
+    }
+    else {
+        deductionDons = reduction;
+    }   
+    }
+let impotApresDons = impotBrut - deductionDons;
 }
