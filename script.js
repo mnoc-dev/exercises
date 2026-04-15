@@ -275,12 +275,12 @@ console.log(`${labelChbre}, ${jour}, ${txtSaison}, ${nombrePersonnes} pax ${txtP
 console.log("EXO 3");
 console.log("Calcul impôt sur le Revenu");
 
-let revenuAnnuel = 0;
-const situationFamiliale = 1;
+let revenuAnnuel = 30000;
+let situationFamiliale = 1;
 let nombreEnfants = 0;
 let montantDons = 0;
 let fraisSante = 0;
-let travailleurHandicape = true;
+let travailleurHandicape = false;
 let nombreDeParts = 0;
 let impot = 0;
 
@@ -290,7 +290,7 @@ let impot = 0;
 if (revenuAnnuel < 0 || revenuAnnuel > 50000){
     console.log(`"Revenu invalide"`);
 }
-else if (situationFamiliale >= 1 && situationFamiliale <= 5){
+else if (situationFamiliale < 1 && situationFamiliale < 5){
     console.log(`"Situation familiale invalide"`);
 }
 else if (nombreEnfants < 0 || nombreEnfants > 10){
@@ -304,9 +304,23 @@ else if (fraisSante < 0 || fraisSante > 20000){
 }
 else {
     // **Parts de base selon la situation :**
+    if(situationFamiliale ===1){
+        console.log("Célibataire");
+    }
+    if(situationFamiliale ===1){
+        console.log();
+    }
+    if(situationFamiliale ===1){
+        console.log();
+    }
+    if(situationFamiliale ===1){
+        console.log();
+    }
+    if(situationFamiliale ===1){
+        console.log();
+    }
     // célibataire ou divorcé
     if (situationFamiliale === 1 || situationFamiliale === 3){
-    
         nombreDeParts = 1;
         
         if (nombreEnfants >= 1){
@@ -375,17 +389,36 @@ if (quotientFamilial > 100000){
 // **ÉTAPE 5 : Calcul de l'impôt brut total**
 let impotBrut = impot * nombreDeParts;
 // **ÉTAPE 6 : Réduction pour dons aux associations**
-let deductionDons = 0;
+let reductionDons = 0;
     if (montantDons > 0){
 // Don if montant dans le film La folie des grandeurs: pouet pouet! C'est bien trop difficile cet exercice! Aahhhhouuu!
         let reduction = montantDons * 0.66;
         let plafond = impotBrut * 0.20;
     if ( reduction > plafond){
-        deductionDons = plafond;
+        reductionDons = plafond;
     }
     else {
-        deductionDons = reduction;
+        reductionDons = reduction;
     }   
     }
-let impotApresDons = impotBrut - deductionDons;
+let impotApresDons = impotBrut - reductionDons;
+// **ÉTAPE 7 : Crédit d'impôt pour personne en situation de handicap**
+let ImpotApresCredit = 0;
+    if (travailleurHandicape && revenuAnnuel < 50000){
+        let creditImpot = 500;
+        ImpotApresCredit = impotApresDons - creditImpot;
+    }
+// **ÉTAPE 8 : Plafonnement et vérifications finales**
+// **Réduction familles nombreuses 
+
+    if (nombreEnfants >= 3 && ImpotApresCredit > 3000){
+        ImpotApresCredit *= 0.90;
+    }
+    if (impot < 0 && !travailleurHandicape){
+        ImpotApresCredit = 0;
+        
+    }
+impotNet = ImpotApresCredit;
+console.log(`${situationFamiliale}, ${nombreEnfants} enfant, ${revenuAnnuel} de revenu, ${montantDons} don, ${fraisSante} frais santé, ${travailleurHandicape}`)
+console.log(`${nombreDeParts} part. quotient ${quotientFamilial}€. tranche. ${impotNet}€ d'impôt`)
 }
