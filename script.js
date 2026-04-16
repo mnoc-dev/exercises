@@ -290,7 +290,7 @@ let impot = 0;
 if (revenuAnnuel < 0 || revenuAnnuel > 50000){
     console.log(`"Revenu invalide"`);
 }
-else if (situationFamiliale < 1 && situationFamiliale < 5){
+else if (situationFamiliale < 1 || situationFamiliale > 5){
     console.log(`"Situation familiale invalide"`);
 }
 else if (nombreEnfants < 0 || nombreEnfants > 10){
@@ -304,20 +304,21 @@ else if (fraisSante < 0 || fraisSante > 20000){
 }
 else {
     // **Parts de base selon la situation :**
-    if(situationFamiliale ===1){
-        console.log("Célibataire");
+    let txtSituationFamiliale = " ";
+    if(situationFamiliale === 1){
+       txtSituationFamiliale = "Célibataire";
     }
-    if(situationFamiliale ===1){
-        console.log();
+    if(situationFamiliale === 2){
+        txtSituationFamiliale = "Marié";
     }
-    if(situationFamiliale ===1){
-        console.log();
+    if(situationFamiliale === 3){
+        txtSituationFamiliale = "Divorcé";
     }
-    if(situationFamiliale ===1){
-        console.log();
+    if(situationFamiliale === 4){
+        txtSituationFamiliale = "Veuf";
     }
-    if(situationFamiliale ===1){
-        console.log();
+    if(situationFamiliale === 5){
+        txtSituationFamiliale = "Pacsé";
     }
     // célibataire ou divorcé
     if (situationFamiliale === 1 || situationFamiliale === 3){
@@ -359,12 +360,13 @@ else {
 // frais de santé
 let deductionSante = 0;
 let revenuImposable = revenuAnnuel - deductionSante;
-
+let txtHandicape = " ";
     if (fraisSante > 3000){
         deductionSante = fraisSante - 3000;
     }
     if (travailleurHandicape){
         deductionSante += 5000;
+        txtHandicape = "handicapé";
     }
 // **ÉTAPE 3 : Calcul du quotient familial**
 
@@ -373,21 +375,29 @@ let revenuImposable = revenuAnnuel - deductionSante;
 // C'est sur ce montant que s'applique le barème progressif.
 let quotientFamilial = revenuImposable / nombreDeParts;
 // **ÉTAPE 4 : Calcul de l'impôt par tranches progressives**
-if (quotientFamilial > 100000){
-        // impot += (tranche) * taux;        
-        impot += (quotientFamilial - 100000)*0.4;
-    }
-    if (quotientFamilial > 50000){
-        impot += (quotientFamilial - 50000) * 0.3;
-    }
+let impotParTranche = 0;
+if (quotientFamilial > 10000){
+    let tranche2 = Math.min (quotientFamilial - 10000, 15000);
+    // Math.min prends le plus petit. le quotient - les 10000 de la tranche précédente.
+    //  15000 correspond à la quantité de cette tranche (25000 - 10000 = 15000) 
+    impotParTranche += tranche2 * 0.1;
+    // le calcul est impotParTranche + (le résultat qu'il y a dans la tranche 2
+    //  si ca passe a la tranche 3, c'est 15000
+    // sinon c'est ce qu'il reste apres la tranche 1
     if ( quotientFamilial > 25000){
-        impot += (quotientFamilial - 25000) * 0.2;
+        let tranche3 = Math.min (quotientFamilial - 25000, 25000);
+        impotParTranche += tranche3 * 0.2;
+        if (quotientFamilial > 50000){
+            let tranche4 = Math.min (quotientFamilial - 50000, 50000);
+            impotParTranche += tranche4 * 0.3;
+            if (quotientFamilial > 100000){
+                impotParTranche += (quotientFamilial - 100000) * 0.4;
+            }
+        }
     }
-    if (quotientFamilial > 10000){
-        impot += (quotientFamilial - 10000) * 0.1;
-    }
+}
 // **ÉTAPE 5 : Calcul de l'impôt brut total**
-let impotBrut = impot * nombreDeParts;
+let impotBrut = impotParTranche * nombreDeParts;
 // **ÉTAPE 6 : Réduction pour dons aux associations**
 let reductionDons = 0;
     if (montantDons > 0){
@@ -403,22 +413,23 @@ let reductionDons = 0;
     }
 let impotApresDons = impotBrut - reductionDons;
 // **ÉTAPE 7 : Crédit d'impôt pour personne en situation de handicap**
-let ImpotApresCredit = 0;
+let impotApresCredit = 0;
     if (travailleurHandicape && revenuAnnuel < 50000){
         let creditImpot = 500;
-        ImpotApresCredit = impotApresDons - creditImpot;
+        impotApresCredit = impotApresDons - creditImpot;
     }
 // **ÉTAPE 8 : Plafonnement et vérifications finales**
 // **Réduction familles nombreuses 
 
-    if (nombreEnfants >= 3 && ImpotApresCredit > 3000){
-        ImpotApresCredit *= 0.90;
+    if (nombreEnfants >= 3 && impotApresCredit > 3000){
+        impotApresCredit *= 0.90;
     }
     if (impot < 0 && !travailleurHandicape){
-        ImpotApresCredit = 0;
+        impotApresCredit = 0;
         
     }
-impotNet = ImpotApresCredit;
-console.log(`${situationFamiliale}, ${nombreEnfants} enfant, ${revenuAnnuel} de revenu, ${montantDons} don, ${fraisSante} frais santé, ${travailleurHandicape}`)
-console.log(`${nombreDeParts} part. quotient ${quotientFamilial}€. tranche. ${impotNet}€ d'impôt`)
+impotNet = impotApresCredit;
+console.log(`.${txtSituationFamiliale}, ${nombreEnfants} enfant, ${revenuAnnuel} de revenu, ${montantDons} don, ${fraisSante} frais santé, ${txtHandicape}`)
+console.log(`.${nombreDeParts} part. quotient ${quotientFamilial}€.  ${impotApresCredit}€ d'impôt`)
+
 }
