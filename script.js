@@ -287,7 +287,7 @@ let impot = 0;
 
 // CAS INVALIDES
 
-if (revenuAnnuel < 0 || revenuAnnuel > 50000){
+if (revenuAnnuel < 0 || revenuAnnuel > 500000){
     console.log(`"Revenu invalide"`);
 }
 else if (situationFamiliale < 1 || situationFamiliale > 5){
@@ -346,6 +346,7 @@ else {
     // veuf
     else if (situationFamiliale === 4){
         nombreDeParts = 1.5;
+        
             if (nombreEnfants >= 1){
                 nombreDeParts = 2;
             }
@@ -359,7 +360,7 @@ else {
 // **ÉTAPE 2 : Calcul du revenu imposable**
 // frais de santé
 let deductionSante = 0;
-let revenuImposable = revenuAnnuel - deductionSante;
+
 let txtHandicape = " ";
     if (fraisSante > 3000){
         deductionSante = fraisSante - 3000;
@@ -368,6 +369,7 @@ let txtHandicape = " ";
         deductionSante += 5000;
         txtHandicape = "handicapé";
     }
+let revenuImposable = revenuAnnuel - deductionSante;
 // **ÉTAPE 3 : Calcul du quotient familial**
 
 // Quotient familial = `revenuImposable / nombreDeParts`
@@ -413,7 +415,7 @@ let reductionDons = 0;
     }
 let impotApresDons = impotBrut - reductionDons;
 // **ÉTAPE 7 : Crédit d'impôt pour personne en situation de handicap**
-let impotApresCredit = 0;
+let impotApresCredit = impotApresDons;
     if (travailleurHandicape && revenuAnnuel < 50000){
         let creditImpot = 500;
         impotApresCredit = impotApresDons - creditImpot;
